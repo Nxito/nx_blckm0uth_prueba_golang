@@ -1,0 +1,130 @@
+package main
+
+import (
+	"database/sql"
+	"fmt"
+
+	_ "github.com/lib/pq"
+)
+
+//conexion con DB
+const (
+    host     = "localhost"
+    port     = 5432
+    user     = "admin"
+    password = "password"
+    dbname   = "mytestdb"
+)
+
+type Player struct {
+    ID     string  `json:"id"`
+    Name  string  `json:"name"`
+}
+
+// type Queue struct {
+//     ID     string  `json:"id"`
+//     Name  string  `json:"name"`
+// 	MaxPlayers  string  `json:"maxPlayers"`
+// }
+
+// type Session struct {
+//     ID     string  `json:"id"`
+//     Queue  string  `json:"queue"`
+// 	Players  string  `json:"players"`
+// 	Status  string  `json:"status"`
+// }
+
+
+// var players = []Player{
+//     {ID: "1",  Name: "John Smith"},
+//     {ID: "2",  Name: "Gary Oak"},
+//     {ID: "3",  Name: "Tomato49"},
+// }
+
+func main() {
+
+	       // connection string
+	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+         
+		   // open database
+	db, err := sql.Open("postgres", psqlconn)
+	CheckError(err)
+	getDBPlayer(db,"players")
+		// close database
+	defer db.Close()
+
+		// check db
+	err = db.Ping()
+	CheckError(err)
+
+	fmt.Println("Connected!")
+
+
+	// router := gin.Default()
+	// router.GET("/api/players", getPlayers)
+	// router.GET("/api/players/:id", getPlayers)
+	// router.POST("/api/players", createPlayers)
+	// router.PUT("/api/players", updatePlayers)
+	// router.DELETE("/api/players", deletePlayers)
+
+
+	// // http.ListenAndServe(":8080", router)
+	// router.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+}
+
+// func getPlayers(c *gin.Context) {
+// 	id := c.Param("id")
+	
+// 	if id != "" {
+// 		c.JSON(200, gin.H{
+// 			"message": "Hello from Route 1 with parameter",
+// 			"id":      id,
+// 		})
+// 	} else {
+// 		c.JSON(200, gin.H{
+// 			"message": "Hello from Route 1 with no parameter",
+// 		})
+// 	}
+// }
+
+// func createPlayers(c *gin.Context) {
+// 	c.JSON(200, gin.H{
+// 		"message": "Hello from Route 1!",
+// 	})
+// }
+
+// func updatePlayers(c *gin.Context) {
+// 	c.JSON(200, gin.H{
+// 		"message": "Hello from Route 1!",
+// 	})
+// }
+
+// func deletePlayers(c *gin.Context) {
+// 	c.JSON(200, gin.H{
+// 		"message": "Hello from Route 1!",
+// 	})
+// }
+
+func CheckError(err error) {
+    if err != nil {
+        panic(err)
+    }
+}
+
+func getDBPlayer (db *sql.DB, tableName string){
+	rows, err := db.Query(`SELECT "name", "uuid" FROM "players"`)
+	CheckError(err)
+	
+	defer rows.Close()
+	for rows.Next() {
+		var name string
+		var uuid string
+	
+		err = rows.Scan(&name, &uuid)
+		CheckError(err)
+	
+		fmt.Println(name, uuid)
+	}
+	
+	CheckError(err)
+}
