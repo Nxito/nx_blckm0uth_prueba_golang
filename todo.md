@@ -18,11 +18,11 @@
 
     ● queues
 
-    - [ ] get all: Returns a list of queues.
-    - [ ] get by id: Return to the concrete queue.
-    - [ ] create: Create a queue, please take into account that you can create 10  queues (by a file configuration).
-    - [ ] update by id (only name)
-    - [ ] delete by id
+    - [x] get all: Returns a list of queues.
+    - [x] get by id: Return to the concrete queue.
+    - [x] create: Create a queue, please take into account that you can create 10  queues (by a file configuration) .Finally i used the pgSQL DB
+    - [x] update by id (only name)
+    - [x] delete by id
 
     ● game session
 
