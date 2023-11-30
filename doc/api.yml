@@ -1,0 +1,35 @@
+swagger: '2.0'
+info:
+  title: 'API de Ejemplo'
+  version: '1.0.0'
+paths:
+  /api/players:
+    get:
+      summary: Obtiene la lista de jugadores
+      responses:
+        200:
+          description: Éxito
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Player'
+    post:
+      summary: Crea un nuevo jugador
+      parameters:
+        - in: body
+          name: player
+          description: Datos del nuevo jugador
+          required: true
+          schema:
+            $ref: '#/definitions/Player'
+      responses:
+        200:
+          description: Éxito
+          schema:
+            $ref: '#/definitions/Player'
+definitions:
+  Player:
+    type: object
+    properties:
+      name:
+        type: string
