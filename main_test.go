@@ -7,12 +7,12 @@ import (
 	"testing"
 
 	"golang-gin-crud-api/model"
-	
+	"golang-gin-crud-api/router"  
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetAllPlayers(t *testing.T) {
-	router :=  setupRouter()
+	router :=  router.SetupRouter()
 
 	resp := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "http://localhost:8080/api/players", nil)
@@ -38,7 +38,7 @@ func TestGetAllPlayers(t *testing.T) {
 }
 
 func TestGetAllQueues(t *testing.T) {
-	router :=  setupRouter()
+	router :=  router.SetupRouter()
 
 	resp := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "http://localhost:8080/api/queues", nil)
@@ -64,7 +64,7 @@ func TestGetAllQueues(t *testing.T) {
 }
 
 func TestGetAllSessions(t *testing.T) {
-	router :=  setupRouter()
+	router :=  router.SetupRouter()
 
 	resp := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "http://localhost:8080/api/sessions", nil)
