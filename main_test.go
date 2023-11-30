@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"golang-gin-crud-api/model"
+	
 	"github.com/stretchr/testify/assert"
 )
 
@@ -28,7 +30,7 @@ func TestGetAllPlayers(t *testing.T) {
 	dataBytes, err := json.Marshal(response["data"])
     assert.NoError(t, err)
 
-    var data []Player
+    var data []model.Player
     err = json.Unmarshal(dataBytes, &data)
     assert.NoError(t, err)
 
@@ -54,7 +56,7 @@ func TestGetAllQueues(t *testing.T) {
 	dataBytes, err := json.Marshal(response["data"])
     assert.NoError(t, err)
 
-    var data []Queue
+    var data []model.Queue
     err = json.Unmarshal(dataBytes, &data)
     assert.NoError(t, err)
 
@@ -81,7 +83,7 @@ func TestGetAllSessions(t *testing.T) {
 	dataBytes, err := json.Marshal(response["data"])
     assert.NoError(t, err)
 
-    var data []Session
+    var data []model.Session
     err = json.Unmarshal(dataBytes, &data)
     assert.NoError(t, err)
 

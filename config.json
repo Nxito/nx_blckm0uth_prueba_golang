@@ -1,0 +1,12 @@
+{
+    "max_queue": 15,
+    
+    "database":{
+        "host": "localhost",
+        "port": 5432,
+        "user": "admin",
+        "password": "password",
+        "dbname": "mytestdb"
+    }
+
+}

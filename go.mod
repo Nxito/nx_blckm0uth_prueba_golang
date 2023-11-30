@@ -1,4 +1,4 @@
-module app
+module golang-gin-crud-api
 
 go 1.21.4
 
