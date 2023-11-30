@@ -40,10 +40,7 @@ type Parameter struct {
 }
 
 var psqlconn = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-
-func main() {
-
-	// connection string
+func setupRouter() *gin.Engine {
 
 	router := gin.Default()
 	// Routes for Players
@@ -71,9 +68,13 @@ func main() {
 	router.GET("/api/sessions/:status", getSessionByStatus)
 	router.POST("/api/sessions", createSession)
 	router.PUT("/api/sessions", updateSession)
+	return router
+}
 
-	// http.ListenAndServe(":8080", router)
-	router.Run() // listen and serve on 0.0.0.0:8080 (for windows "http://localhost:8080")
+
+func main() {
+	r := setupRouter()
+	r.Run(":8080")
 }
 
 func getPlayers(c *gin.Context) {

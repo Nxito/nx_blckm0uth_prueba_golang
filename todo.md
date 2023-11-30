@@ -7,7 +7,7 @@
     - [x] game session
 
 2. Create a simple API REST with the following methods and verbs:
-   
+
     ● players
 
     - [x] get all: Return a list of players.
@@ -30,4 +30,26 @@
     - [x] create or update (it needs to specify queue ID and player ID): The logic is explained above. Return the ID of the game session and the related data.
     - [x] get by status: Return the list of queues filtered by status.
 
+3. Create a testing for future changes
+    ● players
 
+    - [x] get all
+    - [ ] get by id
+    - [ ] create
+    - [ ] update by id 
+    - [ ] delete by id
+
+    ● queues
+
+    - [x] get all
+    - [ ] get by id:
+    - [ ] create
+    - [ ] update by id 
+    - [ ] delete by id
+
+    ● game session
+
+    - [x] get all
+    - [ ] create 
+    - [ ] update 
+    - [ ] get by status

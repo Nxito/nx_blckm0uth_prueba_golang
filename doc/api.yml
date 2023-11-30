@@ -1,32 +1,81 @@
-swagger: '2.0'
+swagger: "2.0"
 info:
-  title: 'API de Ejemplo'
-  version: '1.0.0'
+  description: "Swagger document for Survivor battle royale"
+  version: "1.0.0"
+  title: "BlackMouth Test"
+
 paths:
   /api/players:
     get:
-      summary: Obtiene la lista de jugadores
+      summary: "Get all players"
       responses:
         200:
-          description: Éxito
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Player'
+          description: "Successful operation"
     post:
-      summary: Crea un nuevo jugador
+      summary: "Create a new player"
+      responses:
+        201:
+          description: "Player created"
+    delete:
+      summary: "delete a new player"
+      responses:
+        201:
+          description: "Player Deleted"
+  
+  /api/players/{id}:
+    get:
+      summary: "Get a player by ID"
       parameters:
-        - in: body
-          name: player
-          description: Datos del nuevo jugador
+        - name: id
+          in: path
+          description: "ID of the player to retrieve"
           required: true
-          schema:
-            $ref: '#/definitions/Player'
+          type: string
       responses:
         200:
-          description: Éxito
-          schema:
-            $ref: '#/definitions/Player'
+          description: "Successful operation"
+        204:
+          description: "Player not found"
+    put:
+      summary: "Update a player by ID"
+      parameters:
+        - name: id
+          in: path
+          description: "ID of the player to update"
+          required: true
+          type: string
+      responses:
+        200:
+          description: "Player updated"
+        404:
+          description: "Player not found"
+    delete:
+      summary: "Delete a player by ID"
+      parameters:
+        - name: id
+          in: path
+          description: "ID of the player to delete"
+          required: true
+          type: string
+      responses:
+        204:
+          description: "Player deleted"
+        404:
+          description: "Player not found"
+
+# Similar definitions for /api/queues and /api/sessions
+
+  /api/parameters/limitqueue:
+    get:
+      summary: "Get the limit for queues"
+      responses:
+        200:
+          description: "Successful operation"
+    put:
+      summary: "Update the limit for queues"
+      responses:
+        200:
+          description: "Limit updated"
 definitions:
   Player:
     type: object
