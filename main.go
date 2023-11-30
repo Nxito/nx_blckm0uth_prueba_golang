@@ -25,27 +25,21 @@ type Player struct {
 type Queue struct {
 	ID         string `json:"id"`
 	Name       string `json:"name"`
-	MaxPlayers int `json:"maxPlayers"`
+	MaxPlayers int    `json:"maxPlayers"`
 }
 
 type Session struct {
-	ID      string `json:"id"`
-	Queue   string `json:"queue"`
-	Player  string `json:"player"`
-	Status  string `json:"status"`
+	ID     string `json:"id"`
+	Queue  string `json:"queue"`
+	Player string `json:"player"`
+	Status string `json:"status"`
 }
 type Parameter struct {
 	Name  string
 	Value int
 }
-// var players = []Player{
-//     {ID: "1",  Name: "John Smith"},
-//     {ID: "2",  Name: "Gary Oak"},
-//     {ID: "3",  Name: "Tomato49"},
-// }
 
 var psqlconn = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-
 
 func main() {
 
@@ -54,50 +48,46 @@ func main() {
 	router := gin.Default()
 	// Routes for Players
 
-	router.GET("/api/players",getPlayers);
-	router.GET("/api/players/:id", getPlayerById )
-	router.POST("/api/players",createPlayer)
-	router.PUT("/api/players",updatePlayer)
-	router.DELETE("/api/players",deletePlayer)
+	router.GET("/api/players", getPlayers)
+	router.GET("/api/players/:id", getPlayerById)
+	router.POST("/api/players", createPlayer)
+	router.PUT("/api/players", updatePlayer)
+	router.DELETE("/api/players", deletePlayer)
 
 	// Routes for Queues
-	
+
 	router.GET("/api/queues", getQueues)
 	router.GET("/api/queues/:id", getQueueById)
-	router.POST("/api/queues",createQueue)
+	router.POST("/api/queues", createQueue)
 	router.PUT("/api/queues", updateQueue)
-	router.DELETE("/api/queues",deleteQueue)
+	router.DELETE("/api/queues", deleteQueue)
+
+	router.GET("/api/parameters/limitqueue", getLimitQueue)
+	router.PUT("/api/parameters/limitqueue", updateLimitQueue)
 
 	// Routes for Sessions
 
 	router.GET("/api/sessions", getSessions)
 	router.GET("/api/sessions/:status", getSessionByStatus)
-	router.POST("/api/sessions",createSession)
+	router.POST("/api/sessions", createSession)
 	router.PUT("/api/sessions", updateSession)
-
-
 
 	// http.ListenAndServe(":8080", router)
 	router.Run() // listen and serve on 0.0.0.0:8080 (for windows "http://localhost:8080")
 }
 
-func getPlayers(c *gin.Context ) {
-	// open database
-	db, err := sql.Open("postgres", psqlconn)
-	CheckError(err)
-	fmt.Println("Connected!")
-	data, dberr := getDBPlayers(db)
+func getPlayers(c *gin.Context) {
+
+	data, dberr := getDBPlayers()
 	CheckError(dberr)
-	// close database
-	defer db.Close()
 	if len(data) <= 0 {
 		fmt.Println("No data")
 		c.JSON(204, gin.H{
-			"message": "Al parecer falta el id",
+			"message": "Id needed",
 		})
 	}
 	c.JSON(200, gin.H{
-		"message": "Peticion realizada correctamente",
+		"message": "Success!",
 		"data":    data,
 	})
 
@@ -105,14 +95,7 @@ func getPlayers(c *gin.Context ) {
 func getPlayerById(c *gin.Context) {
 	id := c.Param("id")
 
-	// open database
-	db, err := sql.Open("postgres", psqlconn)
-	CheckError(err)
-	data, dberr := getDBPlayerById(db, id)
-
-	// close database
-	defer db.Close()
-	fmt.Println("Connected!")
+	data, dberr := getDBPlayerById(id)
 
 	if len(data) <= 0 {
 		fmt.Println("No Data", dberr)
@@ -123,7 +106,7 @@ func getPlayerById(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"message": "Peticion realizada correctamente",
+		"message": "Success!",
 		"id":      id,
 		"data":    data,
 	})
@@ -138,18 +121,12 @@ func createPlayer(c *gin.Context) {
 	name := player.Name
 
 	if name == "" {
-		c.JSON(400, gin.H{"error": "El parámetro 'name' es requerido"})
+		c.JSON(400, gin.H{"error": "name required"})
 		return
 	}
-	// open database
-	db, err := sql.Open("postgres", psqlconn)
-	CheckError(err)
-	data, dberr := createDBPlayer(db,  name)
-	// close database
 
-	fmt.Println("Connected!")
+	data, dberr := createDBPlayer(name)
 
-	defer db.Close()
 	if dberr != nil {
 		c.JSON(400, gin.H{
 			"message": dberr,
@@ -158,7 +135,7 @@ func createPlayer(c *gin.Context) {
 	} else {
 
 		c.JSON(201, gin.H{
-			"message": "Peticion realizada correctamente",
+			"message": "Success!",
 			"name":    name,
 			"data":    data,
 		})
@@ -173,28 +150,22 @@ func updatePlayer(c *gin.Context) {
 	}
 
 	if player.ID == "" || player.Name == "" {
-		c.JSON(400, gin.H{"error": "Se requieren al menos 'id' y 'name'"})
+		c.JSON(400, gin.H{"error": "id and name required"})
 		return
 	}
-	// open database
-	db, err := sql.Open("postgres", psqlconn)
-	CheckError(err)
-	data, dberr := updateDBPlayer(db, player)
-	// close database
 
-	fmt.Println("Connected!")
+	data, dberr := updateDBPlayer(player)
 
-	defer db.Close()
 	if dberr != nil {
 		c.JSON(400, gin.H{
 			"message": dberr,
 		})
-	} else if  len(data) == 0 {
+	} else if len(data) == 0 {
 
 		c.JSON(204, gin.H{
 			"message": "No data!",
 		})
-	}else {
+	} else {
 
 		c.JSON(201, gin.H{
 			"message": "Updated!",
@@ -211,18 +182,12 @@ func deletePlayer(c *gin.Context) {
 	}
 
 	if player.ID == "" {
-		c.JSON(400, gin.H{"error": "Se requiere al menos un 'id'"})
+		c.JSON(400, gin.H{"error": "Id required"})
 		return
 	}
-	// open database
-	db, err := sql.Open("postgres", psqlconn)
-	CheckError(err)
-	data, dberr := deleteDBPlayer(db, player)
-	// close database
 
-	fmt.Println("Connected!")
+	data, dberr := deleteDBPlayer(player)
 
-	defer db.Close()
 	if dberr != nil {
 		c.JSON(400, gin.H{
 			"message": dberr,
@@ -230,31 +195,27 @@ func deletePlayer(c *gin.Context) {
 	} else {
 
 		c.JSON(200, gin.H{
-			"message": "Se ha eliminado el usuario con id " + player.ID,
+			"message": "Deleted user with ID :  " + player.ID,
 			"data":    data,
 		})
 	}
 
 }
 func getQueues(c *gin.Context) {
-	// open database
-	db, err := sql.Open("postgres", psqlconn)
-	CheckError(err)
-	data, dberr := getDBQueues(db)
+
+	data, dberr := getDBQueues()
 	CheckError(dberr)
-	// close database
-	defer db.Close()
 
 	if len(data) <= 0 {
 		fmt.Println("No Data")
 		c.JSON(204, gin.H{
-			"message": "Al parecer falta el id",
+			"message": "Id needed",
 		})
 	}
 	fmt.Println("Connected!")
 
 	c.JSON(200, gin.H{
-		"message": "Peticion realizada correctamente",
+		"message": "Success!",
 		"data":    data,
 	})
 
@@ -262,25 +223,18 @@ func getQueues(c *gin.Context) {
 func getQueueById(c *gin.Context) {
 	id := c.Param("id")
 
-	// open database
-	db, err := sql.Open("postgres", psqlconn)
-	CheckError(err)
-	data, dberr := getDBQueueById(db,  id)
-
-	// close database
-	defer db.Close()
-	fmt.Println("Connected!")
+	data, dberr := getDBQueueById(id)
 
 	if len(data) <= 0 {
 		fmt.Println("No Data", dberr)
 		c.JSON(204, gin.H{
-			"message": "No se ha encontrado la Cola",
+			"message": "Queue not found",
 			"id":      id,
 		})
 	}
 
 	c.JSON(200, gin.H{
-		"message": "Peticion realizada correctamente",
+		"message": "Success!",
 		"id":      id,
 		"data":    data,
 	})
@@ -292,40 +246,33 @@ func createQueue(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	 
 
 	if queue.Name == "" {
-		c.JSON(400, gin.H{"error": "El parámetro 'name' es requerido"})
+		c.JSON(400, gin.H{"error": "name required"})
 		return
-	};
+	}
 	if queue.MaxPlayers == 0 {
 		c.JSON(400, gin.H{"error": "El parámetro 'maxPlayers' es requerido"})
 		return
 	}
-	// open database
-	db, err := sql.Open("postgres", psqlconn)
-	CheckError(err)
-	data, dberr := createDBQueue(db,  queue)
-	// close database
 
-	fmt.Println("Connected!")
+	data, dberr := createDBQueue(queue)
 
-	defer db.Close()
 	if dberr != nil {
 		c.JSON(400, gin.H{
-			"message": dberr,
-			"name":    queue.Name,
-			"max_players":    queue.MaxPlayers,
+			"message":     dberr,
+			"name":        queue.Name,
+			"max_players": queue.MaxPlayers,
 		})
-	} else if  len(data) == 0 {
+	} else if len(data) == 0 {
 
 		c.JSON(400, gin.H{
 			"message": "Limit queues exceeded",
 		})
-	}else {
+	} else {
 
 		c.JSON(201, gin.H{
-			"message": "Peticion realizada correctamente",
+			"message": "Success!",
 			"data":    data,
 		})
 	}
@@ -339,28 +286,22 @@ func updateQueue(c *gin.Context) {
 	}
 
 	if queue.ID == "" || queue.Name == "" {
-		c.JSON(400, gin.H{"error": "Se requieren al menos 'id' y 'name'"})
+		c.JSON(400, gin.H{"error": "id and name required"})
 		return
 	}
-	// open database
-	db, err := sql.Open("postgres", psqlconn)
-	CheckError(err)
-	data, dberr := updateDBQueue(db, queue)
-	// close database
 
-	fmt.Println("Connected!")
+	data, dberr := updateDBQueue(queue)
 
-	defer db.Close()
 	if dberr != nil {
 		c.JSON(400, gin.H{
 			"message": dberr,
 		})
-	} else if  len(data) == 0 {
+	} else if len(data) == 0 {
 
 		c.JSON(204, gin.H{
 			"message": "No data!",
 		})
-	}else{
+	} else {
 
 		c.JSON(201, gin.H{
 			"message": "Updated!",
@@ -377,18 +318,12 @@ func deleteQueue(c *gin.Context) {
 	}
 
 	if queue.ID == "" {
-		c.JSON(400, gin.H{"error": "Se requiere al menos un 'id'"})
+		c.JSON(400, gin.H{"error": "Id required"})
 		return
 	}
-	// open database
-	db, err := sql.Open("postgres", psqlconn)
-	CheckError(err)
-	data, dberr := deleteDBQueue(db,  queue)
-	// close database
 
-	fmt.Println("Connected!")
+	data, dberr := deleteDBQueue(queue)
 
-	defer db.Close()
 	if dberr != nil {
 		c.JSON(400, gin.H{
 			"message": dberr,
@@ -396,61 +331,47 @@ func deleteQueue(c *gin.Context) {
 	} else {
 
 		c.JSON(200, gin.H{
-			"message": "Se ha eliminado el usuario con id " + queue.ID,
+			"message": "Deleted user with ID :  " + queue.ID,
 			"data":    data,
 		})
 	}
 
 }
 
- 
 func getSessions(c *gin.Context) {
-	// open database
-	db, err := sql.Open("postgres", psqlconn)
-	CheckError(err)
-	data, dberr := getDBSessions(db)
+
+	data, dberr := getDBSessions()
 	CheckError(dberr)
-	// close database
-	defer db.Close()
 
 	if len(data) <= 0 {
 		fmt.Println("No Data")
 		c.JSON(204, gin.H{
-			"message": "Al parecer falta el id",
+			"message": "Id needed",
 		})
 	}
 	fmt.Println("Connected!")
 
 	c.JSON(200, gin.H{
-		"message": "Peticion realizada correctamente",
+		"message": "Success!",
 		"data":    data,
 	})
 
 }
 func getSessionByStatus(c *gin.Context) {
 	status := c.Param("status")
-	// if status != "opened"{
-	// 	status = "closed"
-	// }
-	// open database
-	db, err := sql.Open("postgres", psqlconn)
-	CheckError(err)
-	data, dberr := getDBSessionByStatus(db,  status)
 
-	// close database
-	defer db.Close()
-	fmt.Println("Connected!")
+	data, dberr := getDBSessionByStatus(status)
 
 	if len(data) <= 0 {
 		fmt.Println("No Data", dberr)
 		c.JSON(204, gin.H{
-			"message": "No se ha encontrado la Cola",
+			"message": "Queue not found",
 			"id":      status,
 		})
 	}
 
 	c.JSON(200, gin.H{
-		"message": "Peticion realizada correctamente",
+		"message": "Success!",
 		"id":      status,
 		"data":    data,
 	})
@@ -464,33 +385,26 @@ func createSession(c *gin.Context) {
 	}
 
 	if session.Queue == "" {
-		c.JSON(400, gin.H{"error": "El parámetro 'queue' es requerido y ha de ser un id existente"})
+		c.JSON(400, gin.H{"error": "Parameter 'queue' is required "})
 		return
 	}
 	if session.Player == "" {
-		c.JSON(400, gin.H{"error": "El parámetro 'player' es requerido y ha de ser un id existente"})
+		c.JSON(400, gin.H{"error": "Parameter 'player'  is required "})
 		return
 	}
 	session.Status = "opened"
 
-	// open database
-	db, err := sql.Open("postgres", psqlconn)
-	CheckError(err)
-	data, dberr := createDBSession(db,  session)
-	// close database
+	data, dberr := createDBSession(session)
 
-	fmt.Println("Connected!")
-
-	defer db.Close()
 	if dberr != nil {
 		c.JSON(400, gin.H{
 			"message": dberr,
-			"queue":    session.Queue,
+			"queue":   session.Queue,
 		})
 	} else {
 
 		c.JSON(201, gin.H{
-			"message": "Peticion realizada correctamente",
+			"message": "Success!",
 			"data":    data,
 		})
 	}
@@ -498,68 +412,46 @@ func createSession(c *gin.Context) {
 }
 func updateSession(c *gin.Context) {
 	var session Session
-	
+
 	if err := c.ShouldBindJSON(&session); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	if  session.Queue == "" || session.Player == "" {
-		c.JSON(400, gin.H{"error": "Se requieren al menos un id de 'queue' y un id de 'player'"})
+	if session.Queue == "" || session.Player == "" {
+		c.JSON(400, gin.H{"error": " 'queue' and 'player' needed "})
 		return
 	}
-	if(session.Status != "closed"){
+	if session.Status != "closed" {
 		session.Status = "opened"
-	} 
-	// open database
-	db, err := sql.Open("postgres", psqlconn)
-	CheckError(err)
-	data, dberr := updateDBSession(db, session)
-	// close database
+	}
 
-	fmt.Println("Connected!")
+	data, dberr := updateDBSession(session)
 
-	defer db.Close()
 	if dberr != nil {
 		c.JSON(400, gin.H{
 			"message": dberr,
 		})
-	} else if  len(data) == 0 {
+	} else if len(data) == 0 {
 
 		c.JSON(204, gin.H{
 			"message": "No data!",
 		})
-	}else{
+	} else {
 
 		c.JSON(201, gin.H{
-			"message": "Updated!",
+			"message": "Updated! Remember: if closed update is gonna send latest data",
 			"data":    data,
 		})
 	}
 
 }
-func CheckError(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
 
-func GetLimitQueue(conn string) (Parameter, error) {
-	db, err := sql.Open("postgres", conn)
+func getDBPlayers() ([]Player, error) {
+	db, err := sql.Open("postgres", psqlconn)
 	CheckError(err)
 	defer db.Close()
 
-	var param Parameter
-	row := db.QueryRow(`SELECT "name", "value" FROM public.parameters WHERE name = 'max_queues'`)
-
-	err = row.Scan(&param.Name, &param.Value)
-	if err != nil {
-		return param, err
-	}
-
-	return param, nil
-}
-func getDBPlayers(db *sql.DB) ([]Player, error) {
 	rows, err := db.Query(`SELECT "name", "id" FROM public.players`)
 	if err != nil {
 		return nil, err
@@ -579,7 +471,11 @@ func getDBPlayers(db *sql.DB) ([]Player, error) {
 	return dataList, nil
 }
 
-func getDBPlayerById(db *sql.DB,  id string) ([]Player, error) {
+func getDBPlayerById(id string) ([]Player, error) {
+	db, err := sql.Open("postgres", psqlconn)
+	CheckError(err)
+	defer db.Close()
+
 	query := fmt.Sprintf(`SELECT "name", "id" FROM public.players where id = '%s'`, id)
 	fmt.Println(query)
 
@@ -602,7 +498,11 @@ func getDBPlayerById(db *sql.DB,  id string) ([]Player, error) {
 	return dataList, nil
 }
 
-func createDBPlayer(db *sql.DB, name string) ([]Player, error) {
+func createDBPlayer(name string) ([]Player, error) {
+	db, err := sql.Open("postgres", psqlconn)
+	CheckError(err)
+	defer db.Close()
+
 	query := fmt.Sprintf(`INSERT INTO public.players(name) VALUES ('%s') RETURNING id,name; `, name)
 	fmt.Println(query)
 
@@ -625,7 +525,11 @@ func createDBPlayer(db *sql.DB, name string) ([]Player, error) {
 	return dataList, nil
 }
 
-func updateDBPlayer(db *sql.DB,  data Player) ([]Player, error) {
+func updateDBPlayer(data Player) ([]Player, error) {
+	db, err := sql.Open("postgres", psqlconn)
+	CheckError(err)
+	defer db.Close()
+
 	query := fmt.Sprintf(`UPDATE  public.players SET  name= '%s' WHERE id = '%s' RETURNING id,name; `, data.Name, data.ID)
 	fmt.Println(query)
 
@@ -648,8 +552,12 @@ func updateDBPlayer(db *sql.DB,  data Player) ([]Player, error) {
 	return dataList, nil
 }
 
-func deleteDBPlayer(db *sql.DB,  data Player) ([]Player, error) {
-	query := fmt.Sprintf(`DELETE FROM public.players WHERE id = '%s'; `, data.ID)
+func deleteDBPlayer(data Player) ([]Player, error) {
+	db, err := sql.Open("postgres", psqlconn)
+	CheckError(err)
+	defer db.Close()
+
+	query := fmt.Sprintf(`DELETE FROM public.players WHERE id = '%s' RETURNING name; `, data.ID)
 	fmt.Println(query)
 
 	rows, err := db.Query(query)
@@ -671,8 +579,11 @@ func deleteDBPlayer(db *sql.DB,  data Player) ([]Player, error) {
 	return dataList, nil
 }
 
+func getDBQueues() ([]Queue, error) {
+	db, err := sql.Open("postgres", psqlconn)
+	CheckError(err)
+	defer db.Close()
 
-func getDBQueues(db *sql.DB) ([]Queue, error) {
 	rows, err := db.Query(`SELECT "name", "id", "max_players" FROM public.queues`)
 	if err != nil {
 		return nil, err
@@ -692,7 +603,11 @@ func getDBQueues(db *sql.DB) ([]Queue, error) {
 	return dataList, nil
 }
 
-func getDBQueueById(db *sql.DB, id string) ([]Queue, error) {
+func getDBQueueById(id string) ([]Queue, error) {
+	db, err := sql.Open("postgres", psqlconn)
+	CheckError(err)
+	defer db.Close()
+
 	query := fmt.Sprintf(`SELECT "name", "id", "max_players" FROM public.queues where id = '%s'`, id)
 	fmt.Println(query)
 
@@ -715,9 +630,11 @@ func getDBQueueById(db *sql.DB, id string) ([]Queue, error) {
 	return dataList, nil
 }
 
-func createDBQueue(db *sql.DB,  queue Queue) ([]Queue, error) {
-	// limit := 10;
-	
+func createDBQueue(queue Queue) ([]Queue, error) {
+	db, err := sql.Open("postgres", psqlconn)
+	CheckError(err)
+	defer db.Close()
+
 	query := fmt.Sprintf(`
 		WITH filecount AS (
 			SELECT COUNT(*) AS fileamount FROM public.queues
@@ -728,9 +645,9 @@ func createDBQueue(db *sql.DB,  queue Queue) ([]Queue, error) {
 		WHERE fileamount < (SELECT value::bigint FROM public.parameters WHERE name = 'max_queues')
 		
 		RETURNING id, name, max_players;
-	`, queue.Name,queue.MaxPlayers)
+	`, queue.Name, queue.MaxPlayers)
 	fmt.Println(query)
- 
+
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
@@ -750,7 +667,11 @@ func createDBQueue(db *sql.DB,  queue Queue) ([]Queue, error) {
 	return dataList, nil
 }
 
-func updateDBQueue(db *sql.DB,data Queue) ([]Queue, error) {
+func updateDBQueue(data Queue) ([]Queue, error) {
+	db, err := sql.Open("postgres", psqlconn)
+	CheckError(err)
+	defer db.Close()
+
 	query := fmt.Sprintf(`UPDATE  public.queues SET  name= '%s' WHERE id = '%s' RETURNING id, name, max_players; `, data.Name, data.ID)
 	fmt.Println(query)
 
@@ -773,8 +694,12 @@ func updateDBQueue(db *sql.DB,data Queue) ([]Queue, error) {
 	return dataList, nil
 }
 
-func deleteDBQueue(db *sql.DB,  data Queue) ([]Queue, error) {
-	query := fmt.Sprintf(`DELETE FROM public.queues WHERE id = '%s'; `, data.ID)
+func deleteDBQueue(data Queue) ([]Queue, error) {
+	db, err := sql.Open("postgres", psqlconn)
+	CheckError(err)
+	defer db.Close()
+
+	query := fmt.Sprintf(`DELETE FROM public.queues WHERE id = '%s' RETURNING name;`, data.ID)
 	fmt.Println(query)
 
 	rows, err := db.Query(query)
@@ -796,7 +721,11 @@ func deleteDBQueue(db *sql.DB,  data Queue) ([]Queue, error) {
 	return dataList, nil
 }
 
-func getDBSessions(db *sql.DB) ([]Session, error) {
+func getDBSessions() ([]Session, error) {
+	db, err := sql.Open("postgres", psqlconn)
+	CheckError(err)
+	defer db.Close()
+
 	rows, err := db.Query(`SELECT "id", "id_queue", "players", "status" FROM public.sessions`)
 	if err != nil {
 		return nil, err
@@ -806,7 +735,7 @@ func getDBSessions(db *sql.DB) ([]Session, error) {
 	var dataList []Session
 	for rows.Next() {
 		var data Session
-		err := rows.Scan(&data.ID, &data.Queue, &data.Player,&data.Status)
+		err := rows.Scan(&data.ID, &data.Queue, &data.Player, &data.Status)
 		if err != nil {
 			return nil, err
 		}
@@ -816,7 +745,11 @@ func getDBSessions(db *sql.DB) ([]Session, error) {
 	return dataList, nil
 }
 
-func getDBSessionByStatus(db *sql.DB, status string) ([]Session, error) {
+func getDBSessionByStatus(status string) ([]Session, error) {
+	db, err := sql.Open("postgres", psqlconn)
+	CheckError(err)
+	defer db.Close()
+
 	query := fmt.Sprintf(`SELECT "id", "id_queue", "players", "status" FROM public.sessions where status = '%s'`, status)
 	fmt.Println(query)
 
@@ -829,7 +762,7 @@ func getDBSessionByStatus(db *sql.DB, status string) ([]Session, error) {
 	var dataList []Session
 	for rows.Next() {
 		var data Session
-		err := rows.Scan(&data.ID, &data.Queue, &data.Player,&data.Status)
+		err := rows.Scan(&data.ID, &data.Queue, &data.Player, &data.Status)
 		if err != nil {
 			return nil, err
 		}
@@ -839,9 +772,11 @@ func getDBSessionByStatus(db *sql.DB, status string) ([]Session, error) {
 	return dataList, nil
 }
 
-func createDBSession(db *sql.DB,  session Session) ([]Session, error) {
-	// limit := 10;
-	
+func createDBSession(session Session) ([]Session, error) {
+	db, err := sql.Open("postgres", psqlconn)
+	CheckError(err)
+	defer db.Close()
+
 	query := fmt.Sprintf(`
 	INSERT INTO public.sessions(
 		id_queue, players, status)
@@ -850,9 +785,9 @@ func createDBSession(db *sql.DB,  session Session) ([]Session, error) {
 		   '{%s}',
 		   '%s')
 	RETURNING id, id_queue, players, status ;
-	`, session.Queue,session.Player,session.Status)
+	`, session.Queue, session.Player, session.Status)
 	fmt.Println(query)
- 
+
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
@@ -862,7 +797,7 @@ func createDBSession(db *sql.DB,  session Session) ([]Session, error) {
 	var dataList []Session
 	for rows.Next() {
 		var data Session
-		err := rows.Scan(&data.ID, &data.Queue, &data.Player,&data.Status)
+		err := rows.Scan(&data.ID, &data.Queue, &data.Player, &data.Status)
 		if err != nil {
 			return nil, err
 		}
@@ -872,14 +807,25 @@ func createDBSession(db *sql.DB,  session Session) ([]Session, error) {
 	return dataList, nil
 }
 
-func updateDBSession(db *sql.DB,data Session) ([]Session, error) {
+func updateDBSession(data Session) ([]Session, error) {
 
-	
+	db, err := sql.Open("postgres", psqlconn)
+	CheckError(err)
+	defer db.Close()
+
 	query := fmt.Sprintf(`
 	UPDATE public.sessions
-	SET   players = players || '{%s}' , status = '%s'
-	WHERE id_queue = '%s' and status= 'opened'
-	RETURNING id, id_queue, players, status ;
+	SET players = CASE
+					 WHEN status = 'opened' THEN players || '{%s}'
+					 ELSE players
+				  END,
+		status = CASE
+					WHEN status = 'opened' THEN '%s'
+					ELSE status
+				 END
+	WHERE id_queue = '%s' 
+	RETURNING id, id_queue, players, status;
+	
 	`, data.Player, data.Status, data.Queue)
 	fmt.Println(query)
 
@@ -892,7 +838,7 @@ func updateDBSession(db *sql.DB,data Session) ([]Session, error) {
 	var dataList []Session
 	for rows.Next() {
 		var data Session
-		err := rows.Scan(&data.ID, &data.Queue, &data.Player,&data.Status)
+		err := rows.Scan(&data.ID, &data.Queue, &data.Player, &data.Status)
 		if err != nil {
 			return nil, err
 		}
@@ -900,4 +846,99 @@ func updateDBSession(db *sql.DB,data Session) ([]Session, error) {
 	}
 
 	return dataList, nil
+}
+
+func CheckError(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+func getLimitQueue(c *gin.Context) {
+	var parameter Parameter
+
+	if err := c.ShouldBindJSON(&parameter); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	data, dberr := getDBLimitQueue()
+	// close database
+
+	fmt.Println("Connected!")
+
+	if dberr != nil {
+		c.JSON(400, gin.H{
+			"message": dberr,
+		})
+	} else {
+
+		c.JSON(201, gin.H{
+			"message": "Updated!",
+			"data":    data,
+		})
+	}
+
+}
+func getDBLimitQueue() (Parameter, error) {
+	db, err := sql.Open("postgres", psqlconn)
+	CheckError(err)
+	defer db.Close()
+
+	var param Parameter
+	row := db.QueryRow(`SELECT "name", "value" FROM public.parameters WHERE name = 'max_queues'`)
+
+	err = row.Scan(&param.Name, &param.Value)
+	if err != nil {
+		return param, err
+	}
+
+	return param, nil
+}
+
+func updateLimitQueue(c *gin.Context) {
+	var parameter Parameter
+
+	if err := c.ShouldBindJSON(&parameter); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	// open database
+	db, err := sql.Open("postgres", psqlconn)
+	CheckError(err)
+	data, dberr := updateDBLimitQueue(parameter)
+	// close database
+
+	fmt.Println("Connected!")
+
+	defer db.Close()
+	if dberr != nil {
+		c.JSON(400, gin.H{
+			"message": dberr,
+		})
+	} else {
+
+		c.JSON(201, gin.H{
+			"message": "Updated!",
+			"data":    data,
+		})
+	}
+
+}
+func updateDBLimitQueue(data Parameter) (Parameter, error) {
+	db, err := sql.Open("postgres", psqlconn)
+	CheckError(err)
+	defer db.Close()
+
+	var param Parameter
+	query := fmt.Sprintf(`UPDATE public.parameters SET  value = '%d' FROM  WHERE name = 'max_queues' RETURN name,value`, data.Value)
+
+	row := db.QueryRow(query)
+
+	err = row.Scan(&param.Name, &param.Value)
+	if err != nil {
+		return param, err
+	}
+
+	return param, nil
 }

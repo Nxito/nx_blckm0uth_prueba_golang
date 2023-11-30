@@ -26,8 +26,8 @@
 
     ● game session
 
-    - [ ] get all: Returns a list of game sessions.
-    - [ ] create or update (it needs to specify queue ID and player ID): The logic is explained above. Return the ID of the game session and the related data.
-    - [ ] get by status: Return the list of queues filtered by status.
+    - [x] get all: Returns a list of game sessions.
+    - [x] create or update (it needs to specify queue ID and player ID): The logic is explained above. Return the ID of the game session and the related data.
+    - [x] get by status: Return the list of queues filtered by status.
 
 
