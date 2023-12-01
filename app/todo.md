@@ -29,8 +29,12 @@
     - [x] get all: Returns a list of game sessions.
     - [x] create or update (it needs to specify queue ID and player ID): The logic is explained above. Return the ID of the game session and the related data.
     - [x] get by status: Return the list of queues filtered by status.
+  
+3. SwaggerDocs
+   - [x] Learn Swaggo for automatic documentation
+   - [x] Documentate the route and controllers
 
-3. Create a testing for future changes
+4. Create a testing for future changes
     ● players
 
     - [x] get all

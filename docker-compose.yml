@@ -1,0 +1,40 @@
+version: '3.9'
+services:
+  app:
+      image: my_golang_api:0.1.0
+      restart: on-failure
+      build:
+        context: ./app
+        dockerfile: dockerfile
+      ports:
+        - '8080:8080'
+      volumes:
+        - ./app:/app
+      depends_on:
+        - database
+      networks: 
+        - myNetwork
+  database:
+      image: my_pgsql:0.1.0
+      restart: on-failure
+      build:
+        context: ./data/postgres
+        dockerfile: dockerfile 
+      environment:
+        POSTGRES_USER: admin
+        POSTGRES_PASSWORD: password
+        POSTGRES_PORT: 5432
+        PGDATA: /var/lib/postgresql/data/pgdata
+      ports:
+        - '5432:5432'
+      volumes:
+        - postgres_data:/var/lib/postgresql/data/pgdata
+      networks:
+        - myNetwork
+
+
+networks:
+  myNetwork:
+    driver: bridge
+volumes:
+  postgres_data:
