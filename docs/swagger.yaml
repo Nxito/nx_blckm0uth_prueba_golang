@@ -1,0 +1,324 @@
+basePath: /api
+definitions:
+  model.Player:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  model.Queue:
+    properties:
+      id:
+        type: string
+      maxPlayers:
+        type: integer
+      name:
+        type: string
+    type: object
+  model.Session:
+    properties:
+      id:
+        type: string
+      player:
+        type: string
+      queue:
+        type: string
+      status:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: A testing project fot BlackMouth. Made with Golang & Gin
+  title: Survivor Battle Royale API
+  version: "1.0"
+paths:
+  /api/players:
+    delete:
+      description: Delete a  player by his id
+      parameters:
+      - description: id to find and delete the Player
+        in: body
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Player'
+        "400":
+          description: error
+          schema:
+            type: string
+      summary: Delete Player
+      tags:
+      - player
+    get:
+      description: Returns a list of players
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Player'
+        "204":
+          description: No Content
+      summary: Get All Players
+      tags:
+      - player
+    post:
+      description: Add a new player and returns it with his id
+      parameters:
+      - description: Name assigned to the new player
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Player'
+        "400":
+          description: error
+          schema:
+            type: string
+      summary: Create Player
+      tags:
+      - player
+    put:
+      description: Updates a  player's name by his id and returns it
+      parameters:
+      - description: id to find the player
+        in: body
+        name: id
+        required: true
+        schema:
+          type: string
+      - description: Name assigned to update the player
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Player'
+        "204":
+          description: No Content
+        "400":
+          description: error
+          schema:
+            type: string
+      summary: Update Player Name
+      tags:
+      - player
+  /api/players/{:id}:
+    get:
+      description: Returns a player requested by his id
+      parameters:
+      - description: Id needed to found the player
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Player'
+        "204":
+          description: No Content
+      summary: Get Player By Id
+      tags:
+      - player
+  /api/queues:
+    delete:
+      description: Delete a queue by his id
+      parameters:
+      - description: id to find and delete the queue
+        in: body
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Queue'
+        "400":
+          description: error
+          schema:
+            type: string
+      summary: Delete Queue
+      tags:
+      - queue
+    get:
+      description: Returns a list of queues
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Queue'
+        "204":
+          description: No Content
+      summary: Get All Queues
+      tags:
+      - queue
+    post:
+      description: 'Add a new queue and returns it with his id. It cannot create more
+        than the value specified on config.json: "max_queues"'
+      parameters:
+      - description: Name assigned to the new player
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: 'Value assigned to limit the payers in this queue. Predet: 2'
+        in: body
+        name: max_players
+        schema:
+          type: integer
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Queue'
+        "400":
+          description: error
+          schema:
+            type: string
+      summary: Create Queue
+      tags:
+      - queue
+    put:
+      description: Updates a  queue's name by his id and returns it
+      parameters:
+      - description: id to find the queue
+        in: body
+        name: id
+        required: true
+        schema:
+          type: string
+      - description: Name assigned to update the queue
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Queue'
+        "204":
+          description: No Content
+        "400":
+          description: error
+          schema:
+            type: string
+      summary: Update Queue Name
+      tags:
+      - queue
+  /api/queues/{:id}:
+    get:
+      responses: {}
+  /api/queues/{:status}:
+    get:
+      description: 'Returns a list of sessions requested by his status: opened or
+        closed'
+      parameters:
+      - description: Id needed to found the sessions
+        in: path
+        name: status
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Session'
+        "204":
+          description: No Content
+      summary: Get a list of sessions by status
+      tags:
+      - session
+  /api/sessions:
+    get:
+      description: Returns a list of sessions
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Session'
+        "204":
+          description: No Content
+      summary: Get All Sessions
+      tags:
+      - session
+    post:
+      description: Creates a Session with one Player and an asociated queue. Returns
+        the ID of the game session and the related data
+      parameters:
+      - description: an Id to find the asociated queue
+        in: body
+        name: queue
+        required: true
+        schema:
+          type: string
+      - description: an Id to add a player
+        in: body
+        name: player
+        required: true
+        schema:
+          type: string
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Session'
+        "400":
+          description: error
+          schema:
+            type: string
+      summary: Create a Session
+      tags:
+      - session
+    put:
+      description: Updates the session adding a new Player. Returns the ID of the
+        game session and the related data
+      parameters:
+      - description: id to find the asociated queue
+        in: body
+        name: queue
+        required: true
+        schema:
+          type: string
+      - description: Name assigned to update the queue
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Session'
+        "204":
+          description: No Content
+        "400":
+          description: error
+          schema:
+            type: string
+      summary: Update Session with a new Player
+      tags:
+      - session
+swagger: "2.0"

@@ -1,13 +1,23 @@
 package router
 import (
 	"github.com/gin-gonic/gin"
-	h "golang-gin-crud-api/helpers"
+	h "golang-gin-crud-api/controller"
+	docs "golang-gin-crud-api/docs"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 /* Router */
-func SetupRouter() *gin.Engine {
 
+// @title Golang Gin CRUD API
+// @version	1.0
+// @description A testing project fot BlackMouth
+// @host 	localhost:8080
+// @BasePath /api
+func SetupRouter() *gin.Engine {
 	router := gin.Default()
-	// Routes for Players
+	docs.SwaggerInfo.BasePath = "/" 
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -27,9 +37,6 @@ func SetupRouter() *gin.Engine {
 	router.POST("/api/queues", h.CreateQueue)
 	router.PUT("/api/queues", h.UpdateQueue)
 	router.DELETE("/api/queues", h.DeleteQueue)
-
-	// router.GET("/api/parameters/limitqueue", h.getLimitQueue)
-	// router.PUT("/api/parameters/limitqueue", h.updateLimitQueue)
 
 	// Routes for Sessions
 
