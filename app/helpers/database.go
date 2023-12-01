@@ -217,7 +217,9 @@ func CreateDBQueue(queue model.Queue) ([]model.Queue, error) {
 		fmt.Println("Error obteniendo parámetros SQL:", err)
 		CheckError(err)
 	}
- 
+	if(queue.MaxPlayers == 0){
+		queue.MaxPlayers = 2
+	}
 
 	query := fmt.Sprintf(`
 		WITH filecount AS (
