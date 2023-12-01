@@ -10,8 +10,6 @@
     - [Data at start](#data-at-start)
   - [How to start](#how-to-start)
 
-
-
 ## Prerequisites
 
 - Docker Compose
@@ -42,6 +40,8 @@ You can specify more files that be executed in aphabetic order.
 To start the proyect just use
 
 `docker compose -f "docker-compose.yml" up -d --build`
+
+*note: if you are using the old pluging, you must to uso docker-compose command*
 
 Docker will install an app container and a postgree container.
 
