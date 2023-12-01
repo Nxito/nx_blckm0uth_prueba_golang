@@ -60,7 +60,7 @@ func GetPlayerById(c *gin.Context) {
 // GetPlayer 		godoc
 // @Summary			Create Player
 // @Description 	Add a new player and returns it with his id
-// @Param			name body string true "Name assigned to the new player"
+// @Param			name body string true "Name assigned to the new player" default({"name":"Anxo"})
 // @Tags			player
 // @Success			201 {object} model.Player
 // @failure      	400 {string}  string "error"
@@ -99,8 +99,8 @@ func CreatePlayer(c *gin.Context) {
 // UpdatePlayer 	godoc
 // @Summary			Update Player Name
 // @Description 	Updates a  player's name by his id and returns it
-// @Param			id body string true "id to find the player"
-// @Param			name body string true "Name assigned to update the player"
+// @Param			id body string true "id to find the player" default({"id":"UUID"})
+// @Param			name body string true "Name assigned to update the player" default({"name":"Anxo97"})
 // @Tags			player
 // @Success			201 {object} model.Player
 // @Success 		204
@@ -142,7 +142,7 @@ func UpdatePlayer(c *gin.Context) {
 // DeletePlayer 	godoc
 // @Summary			Delete Player
 // @Description 	Delete a  player by his id
-// @Param			id body string true "id to find and delete the Player"
+// @Param			id body string true "id to find and delete the Player"  default({"id":"UUID"})
 // @Tags			player
 // @Success			200 {object} model.Player
 // @failure      	400 {string}  string "error"
@@ -234,7 +234,7 @@ func GetQueueById(c *gin.Context) {
 // CreateQueue 	godoc
 // @Summary			Create Queue
 // @Description 	Add a new queue and returns it with his id. It cannot create more than the value specified on config.json: "max_queues"
-// @Param			name body string true "Name assigned to the new player"
+// @Param			name body string true "Name assigned to the new player" default({"name":"queue"})
 // @Param			max_players body int false "Value assigned to limit the payers in this queue. Predet: 2"
 // @Tags			queue
 // @Success			201 {object} model.Queue
@@ -281,8 +281,8 @@ func CreateQueue(c *gin.Context) {
 // UpdateQueue 	godoc
 // @Summary			Update Queue Name
 // @Description 	Updates a  queue's name by his id and returns it
-// @Param			id body string true "id to find the queue"
-// @Param			name body string true "Name assigned to update the queue"
+// @Param			id body string true "id to find the queue" default({"id":"UUID"})
+// @Param			name body string true "Name assigned to update the queue" default({"name":"queue123"})
 // @Tags			queue
 // @Success			201 {object} model.Queue
 // @Success 		204
@@ -324,7 +324,7 @@ func UpdateQueue(c *gin.Context) {
 // DeleteQueue 	godoc
 // @Summary			Delete Queue
 // @Description 	Delete a queue by his id
-// @Param			id body string true "id to find and delete the queue"
+// @Param			id body string true "id to find and delete the queue" default({"id":"UUID"})
 // @Tags			queue
 // @Success			201 {object} model.Queue
 // @failure      	400 {string}  string "error"
@@ -414,8 +414,8 @@ func GetSessionByStatus(c *gin.Context) {
 // CreateSession 	godoc
 // @Summary			Create a Session
 // @Description 	Creates a Session with one Player and an asociated queue. Returns the ID of the game session and the related data
-// @Param			queue body string true "an Id to find the asociated queue"
-// @Param			player body string true "an Id to add a player"
+// @Param			queue body string true "an Id to find the asociated queue"  default({"queue":"queueUUID"})
+// @Param			player body string true "an Id to add a player" default({"player":"Anxo97"})
 // @Tags			session
 // @Success			201 {object} model.Session
 // @failure      	400 {string}  string "error"
@@ -456,8 +456,8 @@ func CreateSession(c *gin.Context) {
 // UpdateSession 	godoc
 // @Summary			Update Session with a new Player
 // @Description 	Updates the session adding a new Player. Returns the ID of the game session and the related data
-// @Param			queue body string true "id to find the asociated queue"
-// @Param			name body string true "Name assigned to update the queue"
+// @Param			queue body string true "id to find the asociated queue"     default({"queue":"queueUUID"})
+// @Param			player body string true "an Id to add another player" default({"player":"Anxo97"})
 // @Tags			session
 // @Success			201 {object} model.Session
 // @Success 		204
