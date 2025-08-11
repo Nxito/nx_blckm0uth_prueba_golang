@@ -1,10 +1,3 @@
-> [!IMPORTANT]  
-> Ante la falta de comunicacion con esta empresa,
-> publico la prueba técnica. La cual me hicieron realizar en menos de 48 horas y otorgando nulo feedback incluso tras haber pedido una minima confirmacion
-> 
-
-
-
 
 # Survivor Battle Royale API
 
